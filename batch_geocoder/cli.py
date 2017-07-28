@@ -10,6 +10,7 @@ import boto
 import boto3
 
 from . import ais as ais_geocoder
+from .cache import GeocodeCache
 
 csv.field_size_limit(sys.maxsize)
 
@@ -62,13 +63,21 @@ def geocode():
 @click.option('--output-file')
 @click.option('--ais-url')
 @click.option('--ais-key')
+@click.option('--use-cache', is_flag=True, default=False)
+@click.option('--cache-bucket')
+@click.option('--cache-max-age', default=90, type=int)
 @click.option('--query-fields', help='Fields to query AIS with, comma separated. They are concatenated in order.')
 @click.option('--ais-fields', help='AIS fields to include in the output, comma separated.')
 @click.option('--remove-fields', help='Fields to remove post AIS query, comma separated.')
-def ais(input_file, output_file, ais_url, ais_key, query_fields, ais_fields, remove_fields):
+def ais(input_file, output_file, ais_url, ais_key, use_cache, cache_bucket, cache_max_age, query_fields, ais_fields, remove_fields):
     query_fields = query_fields.split(',')
     ais_fields = ais_fields.split(',')
     out_rows = None
+
+    if use_cache:
+        cache = GeocodeCache(bucket=cache_bucket)
+    else:
+        cache = None
 
     with get_stream(input_file, 'r') as input_stream:
         with get_stream(output_file, 'w') as output_stream:
@@ -82,9 +91,19 @@ def ais(input_file, output_file, ais_url, ais_key, query_fields, ais_fields, rem
                 for query_field in query_fields:
                     query_elements.append(row[query_field])
 
-                result = ais_geocoder.geocode(ais_url, ais_key, query_elements)
+                result = None
+
+                if cache:
+                    key = ','.join(query_elements)
+                    result = cache.get(key, max_age=cache_max_age)
+
+                if not cache or not result:
+                    result = ais_geocoder.geocode(ais_url, ais_key, query_elements)
 
                 if result and 'features' in result and len(result['features']) > 0:
+                    if cache:
+                        cache.put(key, result)
+
                     feature = result['features'][0]
                     for ais_field in ais_fields:
                         if ais_field == 'lon' or ais_field == 'longitude':

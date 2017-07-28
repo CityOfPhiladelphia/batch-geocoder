@@ -8,6 +8,7 @@ setup(
     packages=['batch_geocoder'],
     install_requires=[
         'boto3==1.4.4',
+        'cachetools==2.0.0',
         'click==6.7',
         'smart_open==1.5.2'
     ],
