@@ -12,7 +12,7 @@ import boto3
 from . import ais as ais_geocoder
 from .cache import GeocodeCache
 
-csv.field_size_limit(sys.maxsize)
+# csv.field_size_limit(sys.maxsize)
 
 logger = logging.getLogger('batch_geocoder')
 
@@ -110,6 +110,12 @@ def ais(input_file, output_file, ais_url, ais_key, use_cache, cache_bucket, cach
                             row[ais_field] = feature['geometry']['coordinates'][0]
                         elif ais_field == 'lat' or ais_field == 'latitude':
                             row[ais_field] = feature['geometry']['coordinates'][1]
+                        elif ais_field == 'geocode_type':
+                            row[ais_field] = feature['geometry']['geocode_type']
+                        elif ais_field == 'match_type':
+                            row[ais_field] = feature['match_type']
+                        elif ais_field == 'ais_feature_type':
+                            row[ais_field] = feature['ais_feature_type']
                         else:
                             row[ais_field] = feature['properties'][ais_field]
                 else:
