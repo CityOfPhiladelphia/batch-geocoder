@@ -59,17 +59,18 @@ def geocode():
     pass
 
 @geocode.command()
-@click.option('--input-file')
-@click.option('--output-file')
-@click.option('--ais-url')
-@click.option('--ais-key')
-@click.option('--use-cache', is_flag=True, default=False)
-@click.option('--cache-bucket')
-@click.option('--cache-max-age', default=90, type=int)
+@click.option('--input-file', help='Input CSV file. Local or S3 (s3://..)')
+@click.option('--output-file', help='Output CSV file. Local or S3 (s3://..)')
+@click.option('--ais-url', help='Base URL for the AIS service')
+@click.option('--ais-key', help='AIS Gatekeeper authentication token')
+@click.option('--ais-user', help='Any string indicating the user or usage. This is used for usage and security analysis')
+@click.option('--use-cache', is_flag=True, default=False, help='Enable S3 geocode cache')
+@click.option('--cache-bucket', help='S3 geocode cache bucket')
+@click.option('--cache-max-age', default=90, type=int, help='S3 geocode cache max age in days')
 @click.option('--query-fields', help='Fields to query AIS with, comma separated. They are concatenated in order.')
 @click.option('--ais-fields', help='AIS fields to include in the output, comma separated.')
 @click.option('--remove-fields', help='Fields to remove post AIS query, comma separated.')
-def ais(input_file, output_file, ais_url, ais_key, use_cache, cache_bucket, cache_max_age, query_fields, ais_fields, remove_fields):
+def ais(input_file, output_file, ais_url, ais_key, ais_user, use_cache, cache_bucket, cache_max_age, query_fields, ais_fields, remove_fields):
     query_fields = query_fields.split(',')
     ais_fields = ais_fields.split(',')
     out_rows = None
@@ -98,7 +99,7 @@ def ais(input_file, output_file, ais_url, ais_key, use_cache, cache_bucket, cach
                     result = cache.get(key, max_age=cache_max_age)
 
                 if not cache or not result:
-                    result = ais_geocoder.geocode(ais_url, ais_key, query_elements)
+                    result = ais_geocoder.geocode(ais_url, ais_key, ais_user, query_elements)
 
                 if result and 'features' in result and len(result['features']) > 0:
                     if cache:
@@ -117,6 +118,7 @@ def ais(input_file, output_file, ais_url, ais_key, use_cache, cache_bucket, cach
 
                 if out_rows == None:
                     headers = rows._fieldnames + ais_fields
+                    print(headers)
                     out_rows = csv.DictWriter(output_stream, headers)
                     out_rows.writeheader()
 
