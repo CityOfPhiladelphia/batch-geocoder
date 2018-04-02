@@ -118,7 +118,6 @@ def ais(input_file, output_file, ais_url, ais_key, ais_user, use_cache, cache_bu
 
                 if out_rows == None:
                     headers = rows._fieldnames + ais_fields
-                    print(headers)
                     out_rows = csv.DictWriter(output_stream, headers)
                     out_rows.writeheader()
 
