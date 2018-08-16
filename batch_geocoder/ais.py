@@ -9,7 +9,7 @@ def geocode(ais_url, ais_key, ais_user, query_elements):
 
     params = {}
     if ais_key:
-        params['gatekeeper'] = ais_key
+        params['gatekeeperKey'] = ais_key
     if ais_user:
         params['user'] = ais_user
 
