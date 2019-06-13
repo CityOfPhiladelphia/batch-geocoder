@@ -111,6 +111,9 @@ def ais(input_file, output_file, ais_url, ais_key, ais_user, use_cache, cache_bu
                             row[ais_field] = feature['geometry']['coordinates'][0]
                         elif ais_field == 'lat' or ais_field == 'latitude':
                             row[ais_field] = feature['geometry']['coordinates'][1]
+                        elif ais_field == 'shape':
+                            coords = feature['geometry']['coordinates']
+                            row[ais_field] = 'POINT ({x} {y})'.format(x=coords[0], y=coords[1])
                         else:
                             row[ais_field] = feature['properties'][ais_field]
                 else:
