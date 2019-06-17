@@ -58,19 +58,7 @@ def get_stream(file, mode):
 def geocode():
     pass
 
-@geocode.command()
-@click.option('--input-file', help='Input CSV file. Local or S3 (s3://..)')
-@click.option('--output-file', help='Output CSV file. Local or S3 (s3://..)')
-@click.option('--ais-url', help='Base URL for the AIS service')
-@click.option('--ais-key', help='AIS Gatekeeper authentication token')
-@click.option('--ais-user', help='Any string indicating the user or usage. This is used for usage and security analysis')
-@click.option('--use-cache', is_flag=True, default=False, help='Enable S3 geocode cache')
-@click.option('--cache-bucket', help='S3 geocode cache bucket')
-@click.option('--cache-max-age', default=90, type=int, help='S3 geocode cache max age in days')
-@click.option('--query-fields', help='Fields to query AIS with, comma separated. They are concatenated in order.')
-@click.option('--ais-fields', help='AIS fields to include in the output, comma separated.')
-@click.option('--remove-fields', help='Fields to remove post AIS query, comma separated.')
-def ais(input_file, output_file, ais_url, ais_key, ais_user, use_cache, cache_bucket, cache_max_age, query_fields, ais_fields, remove_fields):
+def ais_inner(input_file, output_file, ais_url, ais_key, ais_user, use_cache, cache_bucket, cache_max_age, query_fields, ais_fields, remove_fields):
     query_fields = query_fields.split(',')
     ais_fields = ais_fields.split(',')
     out_rows = None
@@ -125,3 +113,18 @@ def ais(input_file, output_file, ais_url, ais_key, ais_user, use_cache, cache_bu
                     out_rows.writeheader()
 
                 out_rows.writerow(row)
+
+@geocode.command()
+@click.option('--input-file', help='Input CSV file. Local or S3 (s3://..)')
+@click.option('--output-file', help='Output CSV file. Local or S3 (s3://..)')
+@click.option('--ais-url', help='Base URL for the AIS service')
+@click.option('--ais-key', help='AIS Gatekeeper authentication token')
+@click.option('--ais-user', help='Any string indicating the user or usage. This is used for usage and security analysis')
+@click.option('--use-cache', is_flag=True, default=False, help='Enable S3 geocode cache')
+@click.option('--cache-bucket', help='S3 geocode cache bucket')
+@click.option('--cache-max-age', default=90, type=int, help='S3 geocode cache max age in days')
+@click.option('--query-fields', help='Fields to query AIS with, comma separated. They are concatenated in order.')
+@click.option('--ais-fields', help='AIS fields to include in the output, comma separated.')
+@click.option('--remove-fields', help='Fields to remove post AIS query, comma separated.')
+def ais(input_file, output_file, ais_url, ais_key, ais_user, use_cache, cache_bucket, cache_max_age, query_fields, ais_fields, remove_fields):
+    ais_inner(*args, **kwargs)    
