@@ -41,6 +41,7 @@ def fopen(file, mode='r'):
         bucket = s3_connection.get_bucket(match.groups()[0])
         if mode == 'w':
             file = bucket.get_key(match.groups()[1], validate=False)
+            return smart_open(file, mode=mode, newline='')
         else:
             file = bucket.get_key(match.groups()[1])
     return smart_open(file, mode=mode)
