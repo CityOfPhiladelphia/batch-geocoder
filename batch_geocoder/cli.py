@@ -128,4 +128,5 @@ def ais_inner(input_file, output_file, ais_url, ais_key, ais_user, use_cache, ca
 @click.option('--ais-fields', help='AIS fields to include in the output, comma separated.')
 @click.option('--remove-fields', help='Fields to remove post AIS query, comma separated.')
 def ais(input_file, output_file, ais_url, ais_key, ais_user, use_cache, cache_bucket, cache_max_age, query_fields, ais_fields, remove_fields):
-    ais_inner(*args, **kwargs)    
+    ais_inner(input_file, output_file, ais_url, ais_key, ais_user, use_cache, cache_bucket, cache_max_age, query_fields,
+              ais_fields, remove_fields)
