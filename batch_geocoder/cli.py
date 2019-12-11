@@ -97,9 +97,9 @@ def ais_inner(input_file, output_file, ais_url, ais_key, ais_user, use_cache, ca
                     feature = result['features'][0]
                     for ais_field in ais_fields:
                         if ais_field == 'lon' or ais_field == 'longitude':
-                            row[ais_field] = feature['geometry']['coordinates'][0]
+                            row[ais_field] = feature['geometry']['coordinates'][0] if feature['geometry']['coordinates'][0] is not None else ''
                         elif ais_field == 'lat' or ais_field == 'latitude':
-                            row[ais_field] = feature['geometry']['coordinates'][1]
+                            row[ais_field] = feature['geometry']['coordinates'][1]  if feature['geometry']['coordinates'][0] is not None else ''
                         elif ais_field == 'shape':
                             coords = feature['geometry']['coordinates']
                             row[ais_field] = 'SRID=4326;POINT ({x} {y})'.format(x=coords[0], y=coords[1])
