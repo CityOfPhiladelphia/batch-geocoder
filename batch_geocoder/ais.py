@@ -17,6 +17,8 @@ def geocode(ais_url, ais_key, ais_user, query_elements):
 
     if response.status_code >= 500:
         raise Exception('5xx response')
+    elif response.status_code == 429:
+        raise Exception('429 response')
     elif response.status_code != 200:
         return None
 
