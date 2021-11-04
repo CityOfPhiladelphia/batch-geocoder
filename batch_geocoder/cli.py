@@ -90,7 +90,7 @@ def ais_inner(input_file, output_file, ais_url, ais_key, ais_user, use_cache, ca
                 if not cache or not result:
                     result = ais_geocoder.geocode(ais_url, ais_key, ais_user, query_elements)
 
-                if result and 'features' in result and len(result['features']) > 0:
+                if result and 'features' in result and len(result['features']) > 0 and result['features'][0]['ais_feature_type'] == 'address':
                     if cache:
                         cache.put(key, result)
 
@@ -102,7 +102,16 @@ def ais_inner(input_file, output_file, ais_url, ais_key, ais_user, use_cache, ca
                             row[ais_field] = feature['geometry']['coordinates'][1]  if feature['geometry']['coordinates'][0] is not None else ''
                         elif ais_field == 'shape':
                             coords = feature['geometry']['coordinates']
-                            row[ais_field] = 'SRID=4326;POINT ({x} {y})'.format(x=coords[0], y=coords[1])
+                            srid = result['crs']['properties']['href'].split('epsg/')[1].split('/proj4')[0]
+                            row[ais_field] = 'SRID={srid};POINT ({x} {y})'.format(srid=srid, x=coords[0], y=coords[1]) if coords[0] and coords[1] else ''
+
+                        elif ais_field == 'geocode_type':
+                            row[ais_field] = feature['geometry']['geocode_type']
+                        elif ais_field == 'normalized':
+                            row[ais_field] = result['normalized']
+                        elif ais_field == 'match_type':
+                            row[ais_field] = feature['match_type']
+
                         else:
                             row[ais_field] = feature['properties'][ais_field]
                 else:
